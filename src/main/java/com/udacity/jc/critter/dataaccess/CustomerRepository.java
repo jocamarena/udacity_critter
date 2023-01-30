@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface CustomerRepository extends CrudRepository<Customer, Long> {
     public Customer findCustomerByPetIdsIsContaining(Long id);
+    public Customer findByPetIds(Long id);
 }

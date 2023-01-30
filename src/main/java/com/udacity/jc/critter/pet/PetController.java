@@ -1,10 +1,14 @@
 package com.udacity.jc.critter.pet;
 
+import com.udacity.jc.critter.domain.Customer;
 import com.udacity.jc.critter.domain.Dog;
+import com.udacity.jc.critter.service.CustomerService;
 import com.udacity.jc.critter.service.DogService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +16,9 @@ import java.util.Optional;
 @RequestMapping("/pet")
 public class PetController {
     private DogService dogService;
-    public PetController(DogService dogService){
+    private CustomerService customerService;
+    public PetController(DogService dogService, CustomerService customerService){
+        this.customerService = customerService;
         this.dogService = dogService;
     }
 
@@ -22,8 +28,17 @@ public class PetController {
         BeanUtils.copyProperties(petDTO, dog);
         dog = dogService.saveDog(dog);
         BeanUtils.copyProperties(dog, petDTO);
-        System.out.println("petDTO id and owner id: " + petDTO.getId() + " " + petDTO.getOwnerId());
-        System.out.println("newPet id and owner id:" + dog.getId() + " " + dog.getOwnerId());
+        Optional<Customer> optionalCustomer = customerService.findCustomerById(dog.getOwnerId());
+        if (optionalCustomer.isPresent()){
+            Customer customer = optionalCustomer.get();
+            List<Long> petIds = new ArrayList<>();
+            if (customer.getPetIds() != null && !customer.getPetIds().isEmpty()) {
+                petIds.addAll(customer.getPetIds());
+            }
+            petIds.add(dog.getId());
+            customer.setPetIds(petIds);
+            customerService.saveCustomer(customer);
+        }
         return petDTO;
     }
 
@@ -39,7 +54,15 @@ public class PetController {
 
     @GetMapping
     public List<PetDTO> getPets(){
-        throw new UnsupportedOperationException();
+        List allDogs = dogService.findAllDogs();
+        List allDogsDTO = new ArrayList<>();
+        Iterator<Dog> itr = allDogs.iterator();
+        while (itr.hasNext()){
+            PetDTO petDTO = new PetDTO();
+            BeanUtils.copyProperties(itr.next(), petDTO);
+            allDogsDTO.add(petDTO);
+        }
+        return allDogsDTO;
     }
 
     @GetMapping("/owner/{ownerId}")

@@ -59,15 +59,17 @@ public class UserController {
 
     @GetMapping("/customer/pet/{petId}")
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
+        List<Customer> customers = new ArrayList<>();
         CustomerDTO customerDTO = new CustomerDTO();
-        Iterator<Customer> itr = customerService.findAllCustomers().iterator();
-        while (itr.hasNext()){
-            System.out.println("findByPetId loop: customer: petIds " + itr.next().getPetIds() +
-                    " petId: " + petId);
-        }
         Customer customer = customerService.findByPetId(petId);
-        //System.out.println("findByPetId: customer: petIds " + customer.getPetIds() + " petId: " + petId);
-        BeanUtils.copyProperties(customer, customerDTO);
+        if (customer != null) {
+            BeanUtils.copyProperties(customer, customerDTO);
+            return customerDTO;
+        } else {
+            customerService.findAllCustomers().forEach(cust -> customers.add(cust));
+        }
+        Optional<Customer> optionalCustomer = customers.stream().findFirst();
+        BeanUtils.copyProperties(optionalCustomer.get(), customerDTO);
         return customerDTO;
     }
 
@@ -90,11 +92,14 @@ public class UserController {
     }
 
     @PutMapping("/employee/{employeeId}")
-    public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
+    public EmployeeDTO setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
         Optional<Employee> optionalEmployee = employeeService.findEmployeeById(employeeId);
             Employee employee = optionalEmployee.get();
+            EmployeeDTO employeeDTO = new EmployeeDTO();
             employee.setDaysAvailable(daysAvailable);
             employeeService.saveEmployee(employee);
+            BeanUtils.copyProperties(employee, employeeDTO);
+            return employeeDTO;
     }
 
     @GetMapping("/employee/availability")

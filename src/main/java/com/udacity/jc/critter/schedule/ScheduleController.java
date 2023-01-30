@@ -58,6 +58,7 @@ public class ScheduleController {
         List<ScheduleDTO> scheduleDTOList = new ArrayList<>();
         List<Schedule> scheduleList = scheduleService.findScheduleByEmployeeId(employeeId);
         return getScheduleDTOS(scheduleDTOList, scheduleList);
+        //return scheduleList;
     }
 
     @GetMapping("/customer/{customerId}")

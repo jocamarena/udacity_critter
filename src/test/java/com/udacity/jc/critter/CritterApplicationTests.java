@@ -134,6 +134,7 @@ class CritterApplicationTests {
 		PetDTO petDTO = createPetDTO();
 		petDTO.setOwnerId(newCustomer.getId());
 		PetDTO newPet = petController.savePet(petDTO);
+		Assertions.assertNotNull(newPet);
 		List<Long> ids = new ArrayList<>();
 		if (!ids.contains(newPet.getId())){
 			ids.add(newPet.getId());

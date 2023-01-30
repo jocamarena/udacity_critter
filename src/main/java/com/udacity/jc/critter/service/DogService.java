@@ -3,8 +3,10 @@ package com.udacity.jc.critter.service;
 import com.udacity.jc.critter.dataaccess.DogRepository;
 import com.udacity.jc.critter.domain.Dog;
 import com.udacity.jc.critter.pet.PetDTO;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class DogService {
     private DogRepository dogRepository;
     public DogService(DogRepository dogRepository){
@@ -19,6 +22,17 @@ public class DogService {
     }
     public Dog saveDog(Dog dog){
         return dogRepository.save(dog);
+    }
+    public List<PetDTO> findAllDogs(){
+        List allDogsDTO = new ArrayList<>();
+        List allDogs = dogRepository.findAll();
+        Iterator<Dog> itr = allDogs.iterator();
+        while (itr.hasNext()){
+            PetDTO petDTO = new PetDTO();
+            BeanUtils.copyProperties(itr.next(), petDTO);
+            allDogsDTO.add(petDTO);
+        }
+        return allDogsDTO;
     }
     public List<PetDTO> findAllByOwnerId(Long id){
         List<Dog> dogs = dogRepository.findAllByOwnerId(id);

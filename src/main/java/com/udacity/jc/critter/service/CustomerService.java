@@ -2,13 +2,15 @@ package com.udacity.jc.critter.service;
 
 import com.udacity.jc.critter.dataaccess.CustomerRepository;
 import com.udacity.jc.critter.domain.Customer;
-import com.udacity.jc.critter.domain.Person;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class CustomerService {
     private CustomerRepository customerRepository;
     public CustomerService(CustomerRepository customerRepository){
@@ -26,7 +28,10 @@ public class CustomerService {
     public Optional<Customer> findCustomerById(Long id){
         return customerRepository.findById(id);
     }
-    public Customer findByPetId(Long id){
+    public Customer findCustomerByPetIdsIsContaining(Long id){
         return customerRepository.findCustomerByPetIdsIsContaining(id);
+    }
+    public Customer findByPetId(Long id){
+        return customerRepository.findByPetIds(id);
     }
 }
